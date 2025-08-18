@@ -1,0 +1,267 @@
+{
+  "animals": {
+    "Green": [
+      {
+        "name": "Lemur",
+        "tags": [
+          "Low Popularity",
+          "Medium Stress"
+        ]
+      },
+      {
+        "name": "Sloth",
+        "tags": [
+          "Low Popularity",
+          "Medium Stress"
+        ]
+      },
+      {
+        "name": "Koala",
+        "tags": [
+          "Low Stress",
+          "Low Popularity"
+        ]
+      },
+      {
+        "name": "Rhinoceros",
+        "tags": [
+          "Low Stress",
+          "Low Popularity"
+        ]
+      },
+      {
+        "name": "Giraffe",
+        "tags": [
+          "Low Popularity",
+          "Medium Stress"
+        ]
+      }
+    ],
+    "Blue": [
+      {
+        "name": "Alligator",
+        "tags": [
+          "Medium Popularity",
+          "Medium Stress"
+        ]
+      },
+      {
+        "name": "Hippopotamus",
+        "tags": [
+          "Medium Popularity",
+          "Medium Stress"
+        ]
+      },
+      {
+        "name": "Toucan",
+        "tags": [
+          "Low Stress",
+          "Low Popularity"
+        ]
+      },
+      {
+        "name": "Flamingo",
+        "tags": [
+          "Low Stress",
+          "Low Popularity"
+        ]
+      }
+    ],
+    "Brown": [
+      {
+        "name": "Monkey",
+        "tags": [
+          "Low Stress",
+          "Low Popularity"
+        ]
+      },
+      {
+        "name": "Bonobo",
+        "tags": [
+          "Medium Popularity",
+          "Medium Stress"
+        ]
+      },
+      {
+        "name": "Gorilla",
+        "tags": [
+          "Medium Popularity",
+          "Medium Stress"
+        ]
+      },
+      {
+        "name": "Orangutan",
+        "tags": [
+          "Low Stress",
+          "Medium Popularity"
+        ]
+      }
+    ],
+    "Purple": [
+      {
+        "name": "Jaguar",
+        "tags": [
+          "Low Stress",
+          "Medium Popularity"
+        ]
+      },
+      {
+        "name": "Panda",
+        "tags": [
+          "High Popularity",
+          "Medium Stress"
+        ]
+      },
+      {
+        "name": "Red Panda",
+        "tags": [
+          "High Popularity",
+          "High Stress"
+        ]
+      },
+      {
+        "name": "Tiger",
+        "tags": [
+          "High Popularity",
+          "High Stress"
+        ]
+      }
+    ],
+    "Yellow": [
+      {
+        "name": "Cheetah",
+        "tags": [
+          "High Popularity",
+          "High Stress"
+        ]
+      },
+      {
+        "name": "Camel",
+        "tags": [
+          "Low Stress",
+          "Low Popularity"
+        ]
+      },
+      {
+        "name": "Lion",
+        "tags": [
+          "High Popularity",
+          "Medium Stress"
+        ]
+      },
+      {
+        "name": "Zebra",
+        "tags": [
+          "Low Stress",
+          "Medium Popularity"
+        ]
+      },
+      {
+        "name": "Elephant",
+        "tags": [
+          "Medium Popularity",
+          "Medium Stress"
+        ]
+      }
+    ],
+    "White": [
+      {
+        "name": "Reindeer",
+        "tags": [
+          "High Popularity",
+          "High Stress"
+        ]
+      },
+      {
+        "name": "Mountain Lion",
+        "tags": [
+          "High Popularity",
+          "High Stress"
+        ]
+      },
+      {
+        "name": "Arctic Fox",
+        "tags": [
+          "High Popularity",
+          "High Stress"
+        ]
+      },
+      {
+        "name": "Penguin",
+        "tags": [
+          "High Popularity",
+          "High Stress"
+        ]
+      },
+      {
+        "name": "Polar Bear",
+        "tags": [
+          "High Popularity",
+          "High Stress"
+        ]
+      }
+    ]
+  },
+  "sectors": [
+    {
+      "name": "Green",
+      "connections": [
+        "Blue",
+        "Purple",
+        "Yellow"
+      ]
+    },
+    {
+      "name": "Exit",
+      "connections": [
+        "Blue"
+      ]
+    },
+    {
+      "name": "Entrance",
+      "connections": [
+        "Blue"
+      ]
+    },
+    {
+      "name": "Blue",
+      "connections": [
+        "Exit",
+        "Green",
+        "Entrance",
+        "Purple"
+      ]
+    },
+    {
+      "name": "Brown",
+      "connections": [
+        "Purple"
+      ]
+    },
+    {
+      "name": "Purple",
+      "connections": [
+        "Brown",
+        "Green",
+        "Blue",
+        "Yellow",
+        "White"
+      ]
+    },
+    {
+      "name": "Yellow",
+      "connections": [
+        "Purple",
+        "Green",
+        "White"
+      ]
+    },
+    {
+      "name": "White",
+      "connections": [
+        "Yellow",
+        "Purple"
+      ]
+    }
+  ]
+}

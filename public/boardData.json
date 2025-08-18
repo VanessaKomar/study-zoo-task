@@ -1,0 +1,25 @@
+{
+  "notes": [
+    {
+      "timeOfDay": "Afternoon",
+      "animalOne": "",
+      "animalTwo": ""
+    },
+    {
+      "timeOfDay": "Evening",
+      "animalOne": "",
+      "animalTwo": ""
+    },
+    {
+      "timeOfDay": "Midday",
+      "animalOne": "Animal 2",
+      "animalTwo": null
+    },
+    {
+      "timeOfDay": "Morning",
+      "animalOne": "",
+      "animalTwo": ""
+    }
+  ],
+  "connectors": []
+}

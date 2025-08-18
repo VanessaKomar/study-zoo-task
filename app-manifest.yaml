@@ -1,0 +1,14 @@
+# See https://developers.miro.com/docs/app-manifest on how to use this
+appName: Zoo Task
+sdkVersion: SDK_V2
+sdkUri: http://localhost:3000
+scopes:
+  - screen:record
+  - identity:read
+  - boards:write
+  - webcam:record
+  - identity:write
+  - team:write
+  - boards:read
+  - team:read
+  - microphone:listen
