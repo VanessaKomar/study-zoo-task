@@ -1,10 +1,11 @@
 // ngrok http --url=strictly-sacred-mayfly.ngrok-free.app 80
-// node src/chat/slack_read.js <mode> <pairID>
+// node src/chat/slack_read.js <sessionID>
 
 require('dotenv').config();
 const { createEventAdapter } = require('@slack/events-api');
 const { sendMessage } = require('./slack_write'); // Import sendMessage function
-const { initializeChatHistory, getChatHistory, addMessageToHistory } = require('./chatHistory'); // Import chat history functions
+const { getConditionForChannel } = require("./dyadMap");
+const { initializeChatHistory, getChatHistory, addMessageToHistory, resetChatHistoryForSession } = require('./chatHistory'); // Import chat history functions
 const { generateSystemPrompt } = require('../ai/systemPrompt');
 const { handleAssistant, getAssistantWelcomeMessage } = require('../modes/assistant');
 const { handleColleague, getColleagueWelcomeMessage, calculateAverageDelay } = require('../modes/colleague');
@@ -18,21 +19,15 @@ const userB = process.env.USER_B_ID;
 const slackEvents = createEventAdapter(slackSigningSecret); // Initialize
 const port = 80; // port default 80
 
-const mode = process.argv[2]; // Mode for the task
-console.log(`AI Mode Selected: ${mode}`); // "a" | "c" | "m" | "x"
+const sessionID = process.argv[2]; // id of the session
+console.log(`Session Id: ${sessionID}`);
 
-const pairID = process.argv[3]; // id of the participant group
-console.log(`Group Id: ${pairID}`);
-
-// // Global object to track pending debounce timers per channel
-// let pendingResponseTimer = null;
-// let lastAiTimestamp = 0; // timestamp (ms) of the last AI response per channel
-// const defaultThreshold = 10000; // threshold of 10 seconds (adjust as needed)
-
-// let doneMessageSent = null;
-
-// initializeChatHistory();
-
+// Optional: allow a fresh start with "--reset" or env RESET_CHAT_HISTORY=1
+const shouldReset = process.argv.includes("--reset") || process.env.RESET_CHAT_HISTORY === "1";
+if (shouldReset) {
+  resetChatHistoryForSession(sessionID);
+  console.log(`[init] Cleared chat history for session ${sessionID}`);
+}
 
 // Per-channel state
 // Timers for colleague debounce
@@ -50,53 +45,52 @@ slackEvents.on('message', async (event) => {
 
   try {
     // Ensure per-channel history exists
-    initializeChatHistory(channel);
+    initializeChatHistory(channel, sessionID);
+
+    // Derive condition for this channel from persistent map
+    const condition = getConditionForChannel(channel, sessionID); // "a" | "c" | "m" | "x"
 
     // Read the messages from this channel's history
-    let chatHistory = getChatHistory(channel);
-    const systemPrompt = generateSystemPrompt(chatHistory, mode);
+    let chatHistory = getChatHistory(channel, sessionID);
+    const systemPrompt = generateSystemPrompt(chatHistory, condition);
     let aiResponse = null; // Initialize response as null
 
-    // If this is a brand-new channel history, send the welcome (per mode)
+    // If this is a brand-new channel history, send the welcome (per condition)
     if (chatHistory.length === 0) {
       let welcomeMessage = "";
-      if (mode === "a") {
+      if (condition === "a") {
         welcomeMessage = getAssistantWelcomeMessage();
-      } else if (mode === "c") {
+      } else if (condition === "c") {
         welcomeMessage = getColleagueWelcomeMessage();
-      } else if (mode === "m") {
+      } else if (condition === "m") {
         welcomeMessage = getModeratorWelcomeMessage();
-      } else if (mode === "x") {
+      } else if (condition === "x") {
         welcomeMessage = getControlWelcomeMessage();
       }
 
       if (welcomeMessage) {
         await sendMessage(channel, welcomeMessage);
-        await addMessageToHistory(channel, "AI", welcomeMessage, pairID);
-        // lastAiTimestamp = Date.now();
+        await addMessageToHistory(channel, "AI", welcomeMessage, condition, sessionID);
         lastAiTimestamp.set(channel, Date.now());
       } return;
     }
-    // } else if (!doneMessageSent) {
-      // Always log user messages
-    await addMessageToHistory(channel, getUserLabel(user), text, pairID);
+    // Always log user messages
+    await addMessageToHistory(channel, getUserLabel(user), text, condition, sessionID);
 
     // If finalization triggered
     if (text.trim().toLowerCase() === "done" && !doneMessageSent.has(channel)) {
       const finalMessage = getFinalMessage();
 
       await sendMessage(channel, finalMessage);
-      await addMessageToHistory(channel, "AI", finalMessage, pairID);
-      // doneMessageSent = true;
+      await addMessageToHistory(channel, "AI", finalMessage, condition, sessionID);
       doneMessageSent.add(channel);
       return; // Don't process further
     }
 
-    // If control mode -> no AI responses, just logging
-    if (mode === "x") return;
+    if (condition === "x") return;  // If control condition -> no AI responses, just logging
 
-    if (mode === "c") { // Colleague Mode
-      // Colleague mode with debounce based on average human delay in this channel
+    if (condition === "c") { // Colleague condition
+      // Colleague condition with debounce based on average human delay in this channel
       const avgDelay = calculateAverageDelay(chatHistory);
 
       // Reset any existing timer for this channel
@@ -105,21 +99,16 @@ slackEvents.on('message', async (event) => {
 
       const handle = setTimeout(async () => {
         // Refresh latest history at fire time
-        const latestHistory = getChatHistory(channel);
+        const latestHistory = getChatHistory(channel, sessionID);
         const lastAi = lastAiTimestamp.get(channel) || 0;
         const recentMessages = latestHistory.filter(
           (msg) => new Date(msg.timestamp).getTime() > lastAi
         );
         const recentChatHistory = recentMessages.map((m) => m.message).join("\n");
 
-        const response = await handleColleague(
-          recentChatHistory,
-          systemPrompt,
-          channel,
-          latestHistory
-        );
+        const response = await handleColleague( recentChatHistory, systemPrompt, channel, latestHistory );
         if (response) {
-          await addMessageToHistory(channel, "AI", response, pairID);
+          await addMessageToHistory(channel, "AI", response, condition, sessionID);
           await sendMessage(channel, response);
           lastAiTimestamp.set(channel, Date.now());
         }
@@ -129,78 +118,31 @@ slackEvents.on('message', async (event) => {
       pendingResponseTimers.set(channel, handle);
     } else {
       // Assistant replies only when @mentioned; Moderator replies on every message
-      if (mode === "a" && text.includes(botID)) {
+      if (condition === "a" && text.includes(botID)) {
         aiResponse = await handleAssistant(text, systemPrompt, channel);
-      } else if (mode === "m") {
+      } else if (condition === "m") {
         // aiResponse = await handleModeratorMode(text, systemPrompt);
         aiResponse = await handleModeratorMode_Basic(text);
       }
 
       if (aiResponse) {
-        await addMessageToHistory(channel, "AI", aiResponse, pairID);
+        await addMessageToHistory(channel, "AI", aiResponse, condition, sessionID);
         await sendMessage(channel, aiResponse);
         lastAiTimestamp.set(channel, Date.now());
       }
     }
-
-
-
-
-    //     // Always clear the existing timer so we reset the countdown with every new message.
-    //     if (pendingResponseTimer) {
-    //       clearTimeout(pendingResponseTimer);
-    //     }
-
-    //     // Set a new timer with the updated delay.
-    //     pendingResponseTimer = setTimeout(async () => {
-    //       // Refresh chat history before generating a response.
-    //       chatHistory = getChatHistory();
-    //       // Filter the chat history to only include messages that were sent after the last AI response.
-    //       const recentMessages = chatHistory.filter(
-    //         msg => new Date(msg.timestamp).getTime() > lastAiTimestamp
-    //       );
-
-    //       // Convert these messages to a single string, joining their text.
-    //       const recentChatHistory = recentMessages.map(msg => msg.message).join("\n");
-
-    //       aiResponse = await handleColleague(recentChatHistory, systemPrompt, channel, chatHistory);
-    //       if (aiResponse) {
-    //         await addMessageToHistory("AI", aiResponse, pairID);
-    //         await sendMessage(channel, aiResponse);
-    //         lastAiTimestamp = Date.now();
-    //       }
-    //       pendingResponseTimer = null;
-    //     }, avgDelay);
-    //   } else {
-    //     if (text.includes(botID) & mode === "a") {
-    //       aiResponse = await handleAssistant(text, systemPrompt, channel);
-    //     } else if (mode === "m") {
-    //       // aiResponse = await handleModeratorMode(text, systemPrompt);
-    //       aiResponse = await handleModeratorMode_Basic(text);
-    //     }
-
-    //     if (aiResponse) { // Only store and send AI response if it was generated
-    //       await addMessageToHistory("AI", aiResponse, pairID);
-    //       await sendMessage(channel, aiResponse);
-    //     }
-    //   }
-    // } else {
-    //   // Always log user messages
-    //   await addMessageToHistory(getUserLabel(user), text, pairID);
-    // }
   } catch (error) {
     console.error(`[${event.channel}] Error processing AI response:`, error);
   }
 });
 
 (async () => {  
-  // const server = await slackEvents.start(port); // Start the built-in server
-  await slackEvents.start(port);
+  await slackEvents.start(port); // Start the built-in server
 })();
 
 // Function to return "Done" message
 function getFinalMessage() {
-  doneMessageSent = true;
+  // doneMessageSent = true;
   return `
     *END OF THE TASK*, please use this format to *SUBMIT YOUR FINAL SOLUTION* (feeding route + explanation) in the Slack chat.
     You have 5 minutes to complete this. I will notify you when the time is up

@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const { summarizeChatHistory, saveChatSummary } = require("./summarizeChat"); // Import summarization function
 
-const chatHistoryDir = path.join(__dirname, "../../chat_History"); // TODO currectly only accesses chat_History folder instead of a file
+const chatHistoryRoot = path.join(__dirname, "../../chat_History"); // TODO currectly only accesses chat_History folder instead of a file
 const TOKEN_LIMIT = 4000; // Set a limit for when summarization should happen
 
 // Ensure base directory exists
@@ -12,23 +12,27 @@ function ensureDir(dirPath) {
   }
 }
 
-function fileForChannel(channelId) {
-  ensureDir(chatHistoryDir);
-  return path.join(chatHistoryDir, `chatHistory_${channelId}.json`);
+function fileForChannel(channelId, sessionID = null) {
+  // If sessionID is provided, write under chat_History/<sessionID>/
+  const baseDir = sessionID
+    ? path.join(chatHistoryRoot, String(sessionID))
+    : chatHistoryRoot;
+  ensureDir(baseDir);
+  return path.join(baseDir, `chatHistory_${channelId}.json`);
 }
 
-// Initialize (lazy) — creates an empty file for this channel if missing
-function initializeChatHistory(channelId) {
-  const filePath = fileForChannel(channelId);
+// Initialize — creates an empty file for this channel if missing
+function initializeChatHistory(channelId, sessionID = null) {
+  const filePath = fileForChannel(channelId, sessionID);
   if (!fs.existsSync(filePath)) {
     fs.writeFileSync(filePath, JSON.stringify([], null, 2), "utf8");
   }
 }
 
 // Fetch chat history for a specific channel
-function getChatHistory(channelId) {
+function getChatHistory(channelId, sessionID = null) {
   try {
-    const filePath = fileForChannel(channelId);
+    const filePath = fileForChannel(channelId, sessionID);
     if (!fs.existsSync(filePath)) return [];
     const data = fs.readFileSync(filePath, "utf8");
     return JSON.parse(data);
@@ -38,29 +42,11 @@ function getChatHistory(channelId) {
   }
 }
 
-
-// // Ensure chat history file exists
-// function initializeChatHistory() {
-//   fs.writeFileSync(chatHistoryFile, JSON.stringify([], null, 2), "utf8");
-// }
-
-// // Fetch chat history
-// function getChatHistory() {
-//   try {
-//     if (!fs.existsSync(chatHistoryFile)) return [];
-//     const data = fs.readFileSync(chatHistoryFile, "utf8");
-//     return JSON.parse(data);;
-//   } catch (error) {
-//     console.error("Error reading chat history:", error);
-//     return [];
-//   }
-// }
-
 // Append a new message to chat history
-async function addMessageToHistory(channelId, user, message, pairID = null) {
+async function addMessageToHistory(channelId, user, message, condition = null, sessionID = null) {
   try {
     // Fetch current history
-    const filePath = fileForChannel(channelId);
+    const filePath = fileForChannel(channelId, sessionID);
     let history = [];
     
     if (fs.existsSync(filePath)) {
@@ -68,12 +54,7 @@ async function addMessageToHistory(channelId, user, message, pairID = null) {
       history = JSON.parse(data);
     }
 
-    const entry = {
-      user,
-      message,
-      timestamp: new Date().toISOString(),
-      channelId
-    };
+    const entry = { user, message, timestamp: new Date().toISOString(), channelId };
 
     history.push(entry);
 
@@ -81,10 +62,10 @@ async function addMessageToHistory(channelId, user, message, pairID = null) {
     if (JSON.stringify(history).length > TOKEN_LIMIT) {
       const summarized = await summarizeChatHistory(history);
 
-      if (pairID) {
+      if (condition) {
         const fullSummaryText = summarized[0]?.message || null;
         if (fullSummaryText) {
-          saveChatSummary(fullSummaryText, pairID, channelId);
+          saveChatSummary(fullSummaryText, condition, channelId);
         }      
       }
 
@@ -94,10 +75,8 @@ async function addMessageToHistory(channelId, user, message, pairID = null) {
     fs.writeFileSync(filePath, JSON.stringify(history, null, 2), "utf8");
 
     // append to external per-pair, per-channel raw log (line-delimited JSON)
-    const fullLogPath = pairID ? path.join(__dirname, "..", "..", `chat_Log/${pairID}/${channelId}_ChatLog.json`) : null;
-    // if (pairID) {
-    //   const fullLogPath = path.join(__dirname, "..", "..", `chat_Log/${pairID}/${channelId}_ChatLog.json`);
-    // }
+    const fullLogPath = condition ? path.join(__dirname, "..", "..", `chat_Log/${condition}/${channelId}_ChatLog.json`) : null;
+
     // log to external study file
     appendToStudyLog(entry, fullLogPath);
   } catch (error) {
@@ -106,7 +85,6 @@ async function addMessageToHistory(channelId, user, message, pairID = null) {
 }
 
 const appendToStudyLog = (entry, filePath) => {
-  // if (!filePath) return;
   const dir = path.dirname(filePath);
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
@@ -116,4 +94,13 @@ const appendToStudyLog = (entry, filePath) => {
   fs.appendFileSync(filePath, logLine, "utf8");
 };
 
-module.exports = { initializeChatHistory, getChatHistory, addMessageToHistory };
+// Delete all chatHistory files for a given session (fresh start per session)
+function resetChatHistoryForSession(sessionID) {
+  if (!sessionID) return;
+  const dir = path.join(chatHistoryRoot, String(sessionID));
+  if (fs.existsSync(dir)) {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+}
+
+module.exports = { initializeChatHistory, getChatHistory, addMessageToHistory, resetChatHistoryForSession };

@@ -35,10 +35,10 @@ async function summarizeChatHistory(history) {
   }
 }
 
-function saveChatSummary(summaryText, pairID, channelId) {
-  if (!pairID || !channelId) return;
+function saveChatSummary(summaryText, condition, channelId) {
+  if (!condition || !channelId) return;
 
-  const filePath = path.join(__dirname, "..", "..", `chat_Log_Summary/${pairID}/chatSummary_${channelId}.json`);
+  const filePath = path.join(__dirname, "..", "..", `chat_Log_Summary/${condition}/chatSummary_${channelId}.json`);
   const summaryDir = path.dirname(filePath);
   if (!fs.existsSync(summaryDir)) {
     fs.mkdirSync(summaryDir, { recursive: true });
