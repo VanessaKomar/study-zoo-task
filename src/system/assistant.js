@@ -26,11 +26,6 @@ You should select which animals to feed to give you the highest score. You canno
 In the morning you will start at the entrance and choose which sector to go to from there,  For the next feeding time you will start at the same sector in which you finished feeding the animals in the previous feeding time.and in the evening you will need to end at the exit.
 You have one hour to feed two animals.The hour includes the travel and feeding time.The feeding of each animal takes 15 minutes and it takes you 10 minutes to get from one sector to the next.
 I.e. from the entrance to the yellow sector you have to pass through two other sectors which means that it takes you 30 minutes to walk from the entrance to the yellow sector
-
-Provide your feeding schedule
-When you have decided which animals to feed for the time of day, write the two animals in the selected order on the respective sticky note
-Elaborate on the decisions that you make on the task. 
-Add a comment on top of the sticky note to explain why you chose these animals for each of the feeding times
 -- -- -- -- --TASK DESCRIPTION END-- -- -- -- --
 
 -- -- -- -- --RULES START-- -- -- -- --

@@ -7,7 +7,6 @@ const TOKEN_LIMIT = 4000; // Set a limit for when summarization should happen
 
 // Ensure chat history file exists
 function initializeChatHistory() {
-  // fs.writeFileSync(chatHistoryFile, JSON.stringify({}), "utf8");
   fs.writeFileSync(chatHistoryFile, JSON.stringify([], null, 2), "utf8");
 }
 
@@ -16,7 +15,6 @@ function getChatHistory() {
   try {
     if (!fs.existsSync(chatHistoryFile)) return [];
     const data = fs.readFileSync(chatHistoryFile, "utf8");
-    // const chatHistories = JSON.parse(data);
     return JSON.parse(data);;
   } catch (error) {
     console.error("Error reading chat history:", error);
@@ -45,7 +43,6 @@ async function addMessageToHistory(user, message, pairID = null) {
     if (JSON.stringify(history).length > TOKEN_LIMIT) {
       const summarized = await summarizeChatHistory(history);
 
-      // const pairID = extractPairIDFromPath(logFilePath);
       if (pairID) {
         const fullSummaryText = summarized[0]?.message || null;
         if (fullSummaryText) {

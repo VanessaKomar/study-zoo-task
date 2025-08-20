@@ -13,8 +13,8 @@ const path = require("path");
 
 const slackSigningSecret = process.env.SLACK_SIGNING_SECRET;
 const botID = process.env.BOT_USER_ID;
-const userA = "U08NCK75R5L";
-const userB = "U08NCK4Q170";
+const userA = process.env.USER_A_ID;
+const userB = process.env.USER_B_ID;
 const slackEvents = createEventAdapter(slackSigningSecret); // Initialize
 const port = 80; // port default 80
 

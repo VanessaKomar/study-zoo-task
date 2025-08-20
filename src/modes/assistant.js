@@ -13,7 +13,6 @@ const thinkingMessages = [
 ];
 
 async function handleAssistant(text, systemPrompt, channel) {
-  // await sendMessage(channel, "Thinking...");
   const thinkingMessage = thinkingMessages[Math.floor(Math.random() * thinkingMessages.length)];
   await sendMessage(channel, thinkingMessage);
   

@@ -2,7 +2,6 @@ const getAIResponse = require("../ai/openai"); // Import AI function
 const path = require("path");
 const fs = require("fs");
 
-const TOKEN_LIMIT = 4000; // Adjust based on model constraints
 const SUMMARY_TARGET = 1000; // Target size for summarized history
 
 // Summarize chat history using AI
