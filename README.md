@@ -43,7 +43,7 @@ To install the dependencies, run:
 1. **Clone the repository:**
 
    ```bash
-   git clone https://github.com/VanessaKomar/Masterarbeit.git
+   git clone https://github.com/VanessaKomar/study-zoo-task.git
    ```
 
 2. **Create a .env File:**
@@ -51,10 +51,12 @@ To install the dependencies, run:
   Create a .env file in the project root with the following environment variables (replace the placeholder values with your actual keys):
 
    ```dotenv
+   OPENAI_API_KEY=your_openai_api_key
    SLACK_SIGNING_SECRET=your_slack_signing_secret
    SLACK_BOT_TOKEN=your_slack_bot_token
    BOT_USER_ID=your_bot_user_id
-   OPENAI_API_KEY=your_openai_api_key
+   USER_A_ID=U08NCK75R5L
+   USER_B_ID=U08NCK4Q170
    ```
 
 3. **Configure Your Slack App:**
@@ -65,52 +67,39 @@ To install the dependencies, run:
 ## Running the Bot
 Run ngrok
 
-Start the Slack bot with the desired mode using one of the following commands:
-
-- Assistant Mode (responds only when explicitly mentioned):
+Start the Slack bot with the desired mode using the following commands:
 
    ```bash
-   node slack_read.js a a##
-   ```
-
-- Colleague Mode (responds based on conversation pauses):
-
-   ```bash
-   node slack_read.js c c##
-   ```
-
-- Moderator Mode (guides conversation with a structured script):
-
-   ```bash
-   node slack_read.js m m##
+   node slack_read.js <sessionID>
    ```
 
 ## Directory Structure
 
    ```bash
-   zoo-task-slack-bot/
-   ├── components/                       # Components of MiroBoard App
-   │   ├── Button.jsx                    
-   │   ├── ChatMessage.jsx               
-   │   └── PromptInput.jsx               
-   ├── pages/                            # MiroBoad App
-   │   ├── api/                          # Code to save board information to files
-   │   │   ├── saveBoardData.js           
-   │   │   └── saveBoardDetails.js           
-   │   ├── assets/                        
-   │   │   └── style.css           
-   │   └── index.js                      # Main handler for Miro App
+   study-zoo-task/
+   ├── chat_History/
+   │   └── chatHistory_<sessionID>.json  # chatHistory of channel
+   ├── chat_Log/                         # chatLog of each condition
+   │   ├── a/              
+   │   ├── c/
+   │   ├── m/
+   │   └── x/
+   ├── chat_Log_Summary/                # chatLog Summary of each condition
+   │   ├── a/              
+   │   ├── c/
+   │   ├── m/
+   │   └── x/
+   ├── config/
+   │   └── dyad_map.json                # Mapping of each dyad channel with "condition", "sessionID", and "assignedAt"
    ├── public/
-   │   ├── boardData.json                # Data on interactions on the board
-   │   ├── boardDetails.json             # Data on the zoo task map
-   │   └── chatHistory.json              # chatHistory of current conversation
+   │   └── boardDetails.json             # Data on the zoo task map
    ├── src/
    │   ├── ai/
-   │   │   ├── llamaai.js                # LLM API integration (for generating responses) NOT USED
-   │   │   ├── openai.js                 # LLM API integration (for generating responses) USED
+   │   │   ├── openai.js                 # LLM API integration (for generating responses)
    │   │   └── systemPrompt.js           # Builds system prompt from chat history, mode and board info   
    │   ├── chat/
    │   │   ├── chatHistory.js            # Logging and retrieving chat history
+   │   │   ├── dyadMap.js                # Logic for dyad mapping
    │   │   ├── slack_read.js             # Slack event handling and main logic
    │   │   ├── slack_write.js            # Functions to send messages to Slack
    │   │   └── summarizeChat.js          # Summarizing chat using llm
@@ -118,17 +107,11 @@ Start the Slack bot with the desired mode using one of the following commands:
    │   │   ├── moderator.js              # Moderator mode logic
    │   │   ├── assistant.js              # Assistant mode logic
    │   │   └── colleague.js              # Colleague mode logic
-   │   ├── scores/
-   │   │   ├── optimize_strategy.py      # Finding the optimal strategy for the zoo task
-   │   │   └── score_animals.py          # Get score based on chosen animals
    │   ├── system/
    │   │   ├── moderator.js              # System prompt for Moderator mode
    │   │   ├── moderatorPrompts.js       # Structured moderator prompt script
    │   │   ├── assistant.js              # System prompt for assistant mode
-   │   │   └── colleague.js              # System prompt for Proactive colleague mode
-   │   ├── utils/
-   │   │   ├── fetchBoardData.js         # Collect board data
-   │   └   └── utils.js                  # Helper functions to organize board data
+   │   └   └── colleague.js              # System prompt for Proactive colleague mode
    ├── .env                              # Environment variables (do not commit)
    ├── package.json                      # Project dependencies and scripts
    └── README.md                         # This file
