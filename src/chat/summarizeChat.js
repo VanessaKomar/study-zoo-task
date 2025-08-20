@@ -8,13 +8,10 @@ const SUMMARY_TARGET = 1000; // Target size for summarized history
 async function summarizeChatHistory(history) {
   try {
     // If chat history is already small, no need to summarize
-    if (history.length <= 3) {
-      return history;
-    }
+    if (history.length <= 3) return history;
 
     // Extract last 3 messages
     const lastMessages = history.slice(-3);
-
     const conversationText = history.map(entry => `${entry.user}: ${entry.message}`).join("\n");
 
     const summaryPrompt = `
@@ -38,19 +35,18 @@ async function summarizeChatHistory(history) {
   }
 }
 
-function saveChatSummary(summaryText, pairID) {
-  if (!pairID) return;
+function saveChatSummary(summaryText, pairID, channelId) {
+  if (!pairID || !channelId) return;
 
-  const filePath = pairID ? path.join(__dirname, "..", "..", `chat_Log_Summary/${pairID}_ChatSummary.json`) : null;
+  const filePath = path.join(__dirname, "..", "..", `chat_Log_Summary/${pairID}/chatSummary_${channelId}.json`);
   const summaryDir = path.dirname(filePath);
   if (!fs.existsSync(summaryDir)) {
-    fs.mkdirSync(summaryDir, {
-      recursive: true
-    });
+    fs.mkdirSync(summaryDir, { recursive: true });
   }
 
   const entry = {
     timestamp: new Date().toISOString(),
+    channelId,
     summary: summaryText,
   };
 
