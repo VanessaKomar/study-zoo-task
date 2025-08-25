@@ -1,0 +1,40 @@
+services:
+  zoo-task:
+    build: .
+    container_name: zoo-task
+    environment:
+      # required by your app
+      SLACK_SIGNING_SECRET: "${SLACK_SIGNING_SECRET}"
+      SLACK_BOT_TOKEN: "${SLACK_BOT_TOKEN}"
+      BOT_USER_ID: "${BOT_USER_ID}"
+      OPENAI_API_KEY: "$OPENAI_API_KEY"
+    volumes:
+      # Persist runtime data
+      - zoo_config:/app/config
+      - zoo_logs:/app/chat_Log
+      - zoo_summaries:/app/chat_Log_Summary
+      - zoo_histories:/app/chat_History
+    ports:
+      - "8080:80"        # <-- publish app on host 8080 so ngrok can target it
+    restart: unless-stopped
+
+  ngrok:
+    image: ngrok/ngrok:latest
+    container_name: zoo-ngrok
+    environment:
+      NGROK_AUTHTOKEN: "${NGROK_AUTHTOKEN}"
+    command: >
+      http --url=${NGROK_DOMAIN} --scheme=https host.docker.internal:8080
+    ports:
+      - "4040:4040"  # ngrok dashboard 
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    # depends_on:
+      # - zoo-task
+    restart: unless-stopped
+
+volumes:
+  zoo_config:
+  zoo_logs:
+  zoo_summaries:
+  zoo_histories:

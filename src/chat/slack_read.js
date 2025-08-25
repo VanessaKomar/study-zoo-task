@@ -22,8 +22,8 @@ const port = 80; // port default 80
 const sessionID = process.argv[2]; // id of the session
 console.log(`Session Id: ${sessionID}`);
 
-// Optional: allow a fresh start with "--reset" or env RESET_CHAT_HISTORY=1
-const shouldReset = process.argv.includes("--reset") || process.env.RESET_CHAT_HISTORY === "1";
+// Optional: allow a fresh start with "--reset"
+const shouldReset = process.argv.includes("--reset");
 if (shouldReset) {
   resetChatHistoryForSession(sessionID);
   console.log(`[init] Cleared chat history for session ${sessionID}`);

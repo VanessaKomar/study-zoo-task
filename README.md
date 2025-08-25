@@ -32,46 +32,37 @@ The project uses the following npm packages:
 - dotenv – For managing environment variables.
 - Other dependencies may include custom modules for working with the OpenAI API (or another LLM API).
 
-To install the dependencies, run:
+## Prerequisites
+- Docker Desktop (macOS/Windows) or Docker Engine (Linux)
+- Slack app already created with:
+  - **Signing Secret**
+  - **Bot Token**
+  - Bot added to your workspace and channels
+- Ngrok account + **authtoken**
+  - Optional: reserved domain (e.g. `my-study.ngrok-free.app`) so URLs don’t change
+- OpenAI API key
 
-  ```bash
-  npm install
-  ```
+## One-time setup
+1. Clone this repo.
 
-## Node Modules
+2. Create a `.env` file next to `docker-compose.yml`:
+   ```env
+   SLACK_SIGNING_SECRET=xxx
+   SLACK_BOT_TOKEN=xoxb-xxx
+   BOT_USER_ID=UXXXXXXXX
+   OPENAI_API_KEY=sk-...
+   NGROK_AUTHTOKEN=your-ngrok-authtoken
+   NGROK_DOMAIN=your-reserved-subdomain.ngrok-free.app
 
-1. **Clone the repository:**
+3. Build the image:
+   `docker compose build`
 
-   ```bash
-   git clone https://github.com/VanessaKomar/study-zoo-task.git
-   ```
+## Running
+1. Start ngrok
+   `docker compose up -d ngrok`
 
-2. **Create a .env File:**
-
-  Create a .env file in the project root with the following environment variables (replace the placeholder values with your actual keys):
-
-   ```dotenv
-   OPENAI_API_KEY=your_openai_api_key
-   SLACK_SIGNING_SECRET=your_slack_signing_secret
-   SLACK_BOT_TOKEN=your_slack_bot_token
-   BOT_USER_ID=your_bot_user_id
-   USER_A_ID=U08NCK75R5L
-   USER_B_ID=U08NCK4Q170
-   ```
-
-3. **Configure Your Slack App:**
-
-- Create and configure your Slack app at https://api.slack.com/apps.
-- Ensure that the app is installed in your workspace and that you have set the proper scopes for both the Events API and Web API.
-
-## Running the Bot
-Run ngrok
-
-Start the Slack bot with the desired mode using the following commands:
-
-   ```bash
-   node slack_read.js <sessionID>
-   ```
+2. Start a new session (foreground):
+   `docker compose run --rm --service-ports zoo-task <sessionID>`
 
 ## Directory Structure
 
@@ -91,6 +82,8 @@ Start the Slack bot with the desired mode using the following commands:
    │   └── x/
    ├── config/
    │   └── dyad_map.json                # Mapping of each dyad channel with "condition", "sessionID", and "assignedAt"
+   ├── docker/
+   │   └── entrypoint.sh                # 
    ├── public/
    │   └── boardDetails.json             # Data on the zoo task map
    ├── src/
@@ -113,6 +106,8 @@ Start the Slack bot with the desired mode using the following commands:
    │   │   ├── assistant.js              # System prompt for assistant mode
    │   └   └── colleague.js              # System prompt for Proactive colleague mode
    ├── .env                              # Environment variables (do not commit)
+   ├── docker-compose.yml                # 
+   ├── dockerfile                        # 
    ├── package.json                      # Project dependencies and scripts
    └── README.md                         # This file
    ```
