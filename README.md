@@ -54,8 +54,12 @@ The project uses the following npm packages:
    NGROK_AUTHTOKEN=your-ngrok-authtoken
    NGROK_DOMAIN=your-reserved-subdomain.ngrok-free.app
 
+3. Ensure formatting
+   ensure that the .env and docker/entrypoint.sh files are formatted in the correct EOL. It should be LF (/n) instead of CRLF (/r/n)
+
 3. Build the image:
    `docker compose build`
+   This needs to be run again any time there is a change in the code.
 
 ## Running
 1. Start ngrok
