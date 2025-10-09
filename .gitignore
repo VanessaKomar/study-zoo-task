@@ -30,3 +30,5 @@ chat_Log_Summary
 chat_History
 config
 *.log
+
+data/

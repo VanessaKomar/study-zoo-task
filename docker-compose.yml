@@ -10,10 +10,10 @@ services:
       OPENAI_API_KEY: "$OPENAI_API_KEY"
     volumes:
       # Persist runtime data
-      - zoo_config:/app/config
-      - zoo_logs:/app/chat_Log
-      - zoo_summaries:/app/chat_Log_Summary
-      - zoo_histories:/app/chat_History
+      - ./data/zoo_config:/app/config
+      - ./data/zoo_logs:/app/chat_Log
+      - ./data/zoo_summaries:/app/chat_Log_Summary
+      - ./data/zoo_histories:/app/chat_History
     ports:
       - "8080:80"        # <-- publish app on host 8080 so ngrok can target it
     restart: unless-stopped
@@ -32,9 +32,3 @@ services:
     # depends_on:
       # - zoo-task
     restart: unless-stopped
-
-volumes:
-  zoo_config:
-  zoo_logs:
-  zoo_summaries:
-  zoo_histories:
