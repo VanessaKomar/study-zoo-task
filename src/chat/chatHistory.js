@@ -54,7 +54,7 @@ async function addMessageToHistory(channelId, user, message, condition = null, s
       history = JSON.parse(data);
     }
 
-    const entry = { user, message, timestamp: new Date().toISOString(), channelId };
+    const entry = { user, message, timestamp: new Date().toISOString(), channelId, sessionID };
 
     history.push(entry);
 
@@ -75,7 +75,7 @@ async function addMessageToHistory(channelId, user, message, condition = null, s
     fs.writeFileSync(filePath, JSON.stringify(history, null, 2), "utf8");
 
     // append to external per-pair, per-channel raw log (line-delimited JSON)
-    const fullLogPath = condition ? path.join(__dirname, "..", "..", `chat_Log/${condition}/${channelId}_ChatLog.json`) : null;
+    const fullLogPath = condition ? path.join(__dirname, "..", "..", `chat_Log/${condition}/${sessionID}_${channelId}_ChatLog.json`) : null;
 
     // log to external study file
     appendToStudyLog(entry, fullLogPath);
