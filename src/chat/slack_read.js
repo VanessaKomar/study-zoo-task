@@ -43,11 +43,6 @@ slackEvents.on('message', async (event) => {
   if (!channel) return;
   if (user === botID) return; // Ignore bot messages to prevent infinite loops
 
-  if (doneMessageSent.has(channel)) {
-    console.log(`[${channel}] Done message already sent, ignoring further messages.`);
-    return;
-  }
-
   try {
     // Ensure per-channel history exists
     initializeChatHistory(channel, sessionID);
