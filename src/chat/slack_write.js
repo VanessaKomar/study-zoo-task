@@ -12,4 +12,12 @@ async function sendMessage(channel, text) {
   }
 }
 
-module.exports = { sendMessage };
+async function joinChannel(channelId, channelName) {
+  try {
+    await web.conversations.join({ channel: channelId });
+  } catch (error) {
+    console.error(`[${channelId}] Error joining channel ${channelName}:`, error);
+  }
+}
+
+module.exports = { sendMessage, joinChannel };

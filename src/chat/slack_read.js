@@ -3,8 +3,8 @@
 
 require('dotenv').config();
 const { createEventAdapter } = require('@slack/events-api');
-const { sendMessage } = require('./slack_write'); // Import sendMessage function
-const { getConditionForChannel } = require("./dyadMap");
+const { sendMessage, joinChannel } = require('./slack_write'); // Import sendMessage function
+const { getConditionForChannel, setConditionForChannel } = require("./dyadMap");
 const { initializeChatHistory, getChatHistory, addMessageToHistory, resetChatHistoryForSession } = require('./chatHistory'); // Import chat history functions
 const { generateSystemPrompt } = require('../ai/systemPrompt');
 const { handleAssistant, getAssistantWelcomeMessage } = require('../modes/assistant');
@@ -138,6 +138,19 @@ slackEvents.on('message', async (event) => {
     }
   } catch (error) {
     console.error(`[${event.channel}] Error processing AI response:`, error);
+  }
+});
+
+slackEvents.on('channel_created', async (event) => {
+  const channelId = event.channel.id;
+  const channelName = event.channel.name;  
+  const channelPattern = /^[acmx]\d{1,3}$/;
+
+  if(channelPattern.test(channelName)) {
+    await joinChannel(channelId, channelName);
+    setConditionForChannel(channelId, channelName.charAt(0), sessionID);
+  } else {
+    console.log(`Channel name ${channelName} does not match pattern, not joining.`);
   }
 });
 
