@@ -53,7 +53,7 @@ slackEvents.on('message', async (event) => {
     initializeChatHistory(channel, sessionID);
 
     // Derive condition for this channel from persistent map
-    const condition = getConditionForChannel(channel, sessionID); // "a" | "c" | "m" | "x"
+    const condition = getConditionForChannel(channel);
 
     // Read the messages from this channel's history
     let chatHistory = getChatHistory(channel, sessionID);

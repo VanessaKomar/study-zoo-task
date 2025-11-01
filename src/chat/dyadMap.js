@@ -4,7 +4,6 @@ const path = require("path");
 
 const MAP_DIR = path.join(__dirname, "../../config");
 const MAP_FILE = path.join(MAP_DIR, "dyad_map.json");
-const CONDITIONS = ["a", "c", "m", "x"]; // 0=a,1=c,2=m,3=x (cycles)
 
 function loadMap() {
   if (!fs.existsSync(MAP_DIR)) fs.mkdirSync(MAP_DIR, { recursive: true });
@@ -29,29 +28,32 @@ function saveMap(map) {
 }
 
 /**
- * Get (or assign) the condition for a channel.
+ * Get he condition for a channel.
  * - If channel already exists, returns stored condition.
- * - Otherwise assigns next condition in the cycle, stores sessionID + timestamp, and persists.
+ * - Otherwise throws an error.
  */
-function getConditionForChannel(channelId, sessionID) {
+function getConditionForChannel(channelId) {
   const map = loadMap();
 
   if (map.channels[channelId]?.condition) {
     return map.channels[channelId].condition;
+  } else {
+    throw new Error(`Channel ${channelId} not found in dyad map`);
   }
-
-  // Assign next
-  const nextIndex = ((map.lastIndex ?? -1) + 1) % CONDITIONS.length;
-  const condition = CONDITIONS[nextIndex];
-  map.channels[channelId] = {
-    condition,
-    sessionID,                 // session that first saw this channel
-    assignedAt: new Date().toISOString()
-  };
-  map.lastIndex = nextIndex;
-
-  saveMap(map);
-  return condition;
 }
 
-module.exports = { getConditionForChannel };
+/**
+ * Set the condition for a channel based on the condition parameter.
+ */
+function setConditionForChannel(channelId, condition, sessionID) {
+  const map = loadMap();
+
+  map.channels[channelId] = {
+    condition,
+    sessionID,
+    assignedAt: new Date().toISOString()
+  };
+  saveMap(map);
+}
+
+module.exports = { getConditionForChannel, setConditionForChannel };
