@@ -7,7 +7,9 @@ services:
       SLACK_SIGNING_SECRET: "${SLACK_SIGNING_SECRET}"
       SLACK_BOT_TOKEN: "${SLACK_BOT_TOKEN}"
       BOT_USER_ID: "${BOT_USER_ID}"
-      OPENAI_API_KEY: "$OPENAI_API_KEY"
+      OPENAI_API_KEY: "${OPENAI_API_KEY}"
+      NEXTCLOUD_USERNAME: "${NEXTCLOUD_USERNAME}"
+      NEXTCLOUD_APP_PASSWORD: "${NEXTCLOUD_APP_PASSWORD}"
     volumes:
       # Persist runtime data
       - ./data/zoo_config:/app/config
