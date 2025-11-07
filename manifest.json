@@ -1,0 +1,43 @@
+{
+    "display_information": {
+        "name": "AI",
+        "description": "AI",
+        "background_color": "#737373"
+    },
+    "features": {
+        "bot_user": {
+            "display_name": "AI",
+            "always_online": false
+        }
+    },
+    "oauth_config": {
+        "scopes": {
+            "bot": [
+                "app_mentions:read",
+                "assistant:write",
+                "channels:history",
+                "channels:join",
+                "channels:read",
+                "chat:write",
+                "chat:write.customize",
+                "groups:history",
+                "groups:read",
+                "im:history"
+            ]
+        }
+    },
+    "settings": {
+        "event_subscriptions": {
+            "request_url": "https://zoo-task.isds.tugraz.at",
+            "bot_events": [
+                "channel_created",
+                "message.channels",
+                "message.groups",
+                "message.im"
+            ]
+        },
+        "org_deploy_enabled": false,
+        "socket_mode_enabled": false,
+        "token_rotation_enabled": false
+    }
+}
