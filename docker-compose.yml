@@ -2,22 +2,15 @@ services:
   zoo-task:
     build: .
     container_name: zoo-task
-    environment:
-      # required by your app
-      SLACK_SIGNING_SECRET: "${SLACK_SIGNING_SECRET}"
-      SLACK_BOT_TOKEN: "${SLACK_BOT_TOKEN}"
-      BOT_USER_ID: "${BOT_USER_ID}"
-      OPENAI_API_KEY: "${OPENAI_API_KEY}"
-      NEXTCLOUD_USERNAME: "${NEXTCLOUD_USERNAME}"
-      NEXTCLOUD_APP_PASSWORD: "${NEXTCLOUD_APP_PASSWORD}"
+    env_file:
+      - ".env${ENV:-}"
     volumes:
-      # Persist runtime data
       - ./data/zoo_config:/app/config
       - ./data/zoo_logs:/app/chat_Log
       - ./data/zoo_summaries:/app/chat_Log_Summary
       - ./data/zoo_histories:/app/chat_History
     ports:
-      - "8080:80"        # <-- publish app on host 8080 so ngrok can target it
+      - "5000:80"
     restart: unless-stopped
 
   ngrok:
@@ -26,11 +19,9 @@ services:
     environment:
       NGROK_AUTHTOKEN: "${NGROK_AUTHTOKEN}"
     command: >
-      http --url=${NGROK_DOMAIN} --scheme=https host.docker.internal:8080
+      http --url=${NGROK_DOMAIN} --scheme=https host.docker.internal:5000
     ports:
       - "4040:4040"  # ngrok dashboard 
     extra_hosts:
       - "host.docker.internal:host-gateway"
-    # depends_on:
-      # - zoo-task
     restart: unless-stopped

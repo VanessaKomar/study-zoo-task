@@ -42,17 +42,33 @@ The project uses the following npm packages:
   - Optional: reserved domain (e.g. `my-study.ngrok-free.app`) so URLs don’t change
 - OpenAI API key
 
+## Slack App
+
+- create the slack app from the provided `manifest.json` [here](https://api.slack.com/apps/)
+- adapt the request_url if needed
+- add the following to the environment config file (.env)
+   - get the signing secret from *Basic Informations* and add it to the environment config file
+   - get the bot token by installing the app to the Slack workspace
+   - get the user id from the slack workspace by right-clicking the app in the sidebar and copying the Member ID
+
+## Automatic Backups to (TUG)Nextcloud
+
+- `src/data_backup.js` periodically backups files to the TUG Nextcloud
+- generate credentials in Settings (Einstellungen) -> Security (Sicherheit) -> Generate new app password (Neues App-Passwort erstellen)
+
 ## One-time setup
 1. Clone this repo.
 
-2. Create a `.env` file next to `docker-compose.yml`:
+2. Create a `.env` & `.env.prod` file next to the `docker-compose.yml` files:
    ```env
    SLACK_SIGNING_SECRET=xxx
    SLACK_BOT_TOKEN=xoxb-xxx
    BOT_USER_ID=UXXXXXXXX
    OPENAI_API_KEY=sk-...
-   NGROK_AUTHTOKEN=your-ngrok-authtoken
-   NGROK_DOMAIN=your-reserved-subdomain.ngrok-free.app
+   NEXTCLOUD_USERNAME=...
+   NEXTCLOUD_APP_PASSWORD...
+   (only for dev env)NGROK_AUTHTOKEN=your-ngrok-authtoken
+   (only for dev env)NGROK_DOMAIN=your-reserved-subdomain.ngrok-free.app
 
 3. Ensure formatting
    ensure that the .env and docker/entrypoint.sh files are formatted in the correct EOL. It should be LF (/n) instead of CRLF (/r/n)
@@ -67,6 +83,11 @@ The project uses the following npm packages:
 
 2. Start a new session (foreground):
    `docker compose run --rm --service-ports zoo-task <sessionID>`
+
+## Deployment
+
+1. `ENV=.prod docker compose build`
+1. `ENV=.prod docker compose run --rm --service-ports zoo-task <sessionID>`
 
 ## Directory Structure
 
