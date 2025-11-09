@@ -4,6 +4,8 @@ services:
     container_name: zoo-task
     env_file:
       - ".env${ENV:-}"
+    environment:
+      - SESSION_ID=${SESSION_ID:-default-session}
     volumes:
       - ./data/zoo_config:/app/config
       - ./data/zoo_logs:/app/chat_Log

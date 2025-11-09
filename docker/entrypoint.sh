@@ -1,13 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if [[  $# -lt 1 ]]; then
-  echo "Usage: zoo-task <SESSION_ID>"
-  echo "Example: docker compose run --rm --service-ports zoo-task s01"
-  exit 1
-fi
-
-SESSION_ID="$1"
+# read from environment variable or use default-session if not set
+SESSION_ID="${SESSION_ID:-default-session}"
 
 node src/data_backup.js &
 

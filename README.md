@@ -78,16 +78,20 @@ The project uses the following npm packages:
    This needs to be run again any time there is a change in the code.
 
 ## Running
-1. Start ngrok
+1. Start ngrok:  
    `docker compose up -d ngrok`
 
-2. Start a new session (foreground):
-   `docker compose run --rm --service-ports zoo-task <sessionID>`
+2. Start a new session with a non-default sessionID(foreground):  
+   `SESSION_ID=abc docker compose run --rm --service-ports zoo-task`
+
+3. Start a new session with a non-default sessionID:  
+   `SESSION_ID=abc docker compose up -d zoo-task`
 
 ## Deployment
 
 1. `ENV=.prod docker compose build`
-1. `ENV=.prod docker compose run --rm --service-ports zoo-task <sessionID>`
+1. `ENV=.prod docker compose up -d` or  
+`SESSION_ID=abc ENV=.prod docker compose up -d zoo-task` 
 
 ## Directory Structure
 
