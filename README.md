@@ -89,8 +89,8 @@ The project uses the following npm packages:
 
 ## Deployment
 
-1. `ENV=.prod docker compose build`
-1. `ENV=.prod docker compose up -d` or  
+1. `ENV=.prod docker compose build zoo-task`
+1. `ENV=.prod docker compose up -d zoo-task` or  
 `SESSION_ID=abc ENV=.prod docker compose up -d zoo-task` 
 
 ## Directory Structure
